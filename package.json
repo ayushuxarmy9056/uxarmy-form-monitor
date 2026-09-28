@@ -1,0 +1,15 @@
+{
+  "name": "uxarmy-hourly-form-monitor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hourly Cypress monitoring for UXArmy forms and their submission APIs",
+  "scripts": {
+    "test": "cypress run",
+    "test:open": "cypress open",
+    "test:live": "cypress run --env liveSubmit=true",
+    "check:config": "node -e \"const f=require('./cypress/fixtures/forms.json'); if(f.length!==16) throw Error('Expected 16 configured forms'); console.log('Configured forms:', f.length)\""
+  },
+  "devDependencies": {
+    "cypress": "^15.3.0"
+  }
+}

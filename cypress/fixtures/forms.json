@@ -1,0 +1,82 @@
+[
+  {
+    "name": "Contact sales",
+    "url": "https://uxarmy.com/contact-sales/",
+    "api": "**/wp-json/uxarmy/v1/submit-contact-sales"
+  },
+  {
+    "name": "Enterprise sales",
+    "url": "https://uxarmy.com/enterprise-sales/",
+    "api": "**/wp-json/uxarmy/v1/submit-contact-sales"
+  },
+  {
+    "name": "Korean contact",
+    "url": "https://uxarmy.com/kr/contact/",
+    "api": "**/wp-json/uxarmy/v1/submit-contact-sales"
+  },
+  {
+    "name": "Japanese contact",
+    "url": "https://uxarmy.com/jp/contact/",
+    "api": "**/wp-json/uxarmy/v1/submit-contact-sales"
+  },
+  {
+    "name": "Outsourced research",
+    "url": "https://uxarmy.com/solutions/expert-services/outsourced-research/",
+    "api": "**/wp-json/uxarmy/v1/submit-resource-form"
+  },
+  {
+    "name": "Research infrastructure",
+    "url": "https://uxarmy.com/solutions/expert-services/research-infrastructure/",
+    "api": "**/wp-json/uxarmy/v1/submit-resource-form"
+  },
+  {
+    "name": "Managed ResearchOps",
+    "url": "https://uxarmy.com/solutions/expert-services/managed-researchops/",
+    "api": "**/wp-json/uxarmy/v1/submit-resource-form"
+  },
+  {
+    "name": "Market research",
+    "url": "https://uxarmy.com/solutions/expert-services/market-research/",
+    "api": "**/wp-json/uxarmy/v1/submit-resource-form"
+  },
+  {
+    "name": "Product manager",
+    "url": "https://uxarmy.com/solutions/teams/product-manager/",
+    "api": "**/wp-json/uxarmy/v1/submit-resource-form"
+  },
+  {
+    "name": "Product designer",
+    "url": "https://uxarmy.com/solutions/teams/product-designer/",
+    "api": "**/wp-json/uxarmy/v1/submit-resource-form"
+  },
+  {
+    "name": "User researcher",
+    "url": "https://uxarmy.com/solutions/teams/userresearcher/",
+    "api": "**/wp-json/uxarmy/v1/submit-resource-form"
+  },
+  {
+    "name": "Marketing",
+    "url": "https://uxarmy.com/solutions/teams/marketing/",
+    "api": "**/wp-json/uxarmy/v1/submit-resource-form"
+  },
+  {
+    "name": "Startup",
+    "url": "https://uxarmy.com/solutions/company/startup/",
+    "api": "**/wp-json/uxarmy/v1/submit-resource-form"
+  },
+  {
+    "name": "Small business",
+    "url": "https://uxarmy.com/solutions/company/small-business/",
+    "api": "**/wp-json/uxarmy/v1/submit-resource-form"
+  },
+  {
+    "name": "Mid-market",
+    "url": "https://uxarmy.com/solutions/company/mid-market/",
+    "api": "**/wp-json/uxarmy/v1/submit-resource-form"
+  },
+  {
+    "name": "Enterprises",
+    "url": "https://uxarmy.com/solutions/company/enterprises/",
+    "api": "**/wp-json/uxarmy/v1/submit-resource-form"
+  }
+]
