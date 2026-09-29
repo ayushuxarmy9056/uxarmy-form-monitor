@@ -88,10 +88,20 @@ describe('hourly form health monitor', () => {
       cy.wait('@primarySubmission', { timeout: 30000 }).then(({ request, response }) => {
         expect(request.body, 'submission request body').to.exist
         expect(response, 'submission response').to.exist
-        expect(response.statusCode, 'primary API status').to.be.within(200, 399)
-        if (typeof response.body === 'object' && response.body !== null && 'success' in response.body) {
-          expect(response.body.success, 'API success field').to.equal(true)
-        }
+        const responseDetails = typeof response.body === 'string'
+          ? response.body
+          : JSON.stringify(response.body)
+
+        cy.log(`Primary API response: ${response.statusCode} ${responseDetails}`)
+        cy.writeFile(
+          `cypress/results/${Cypress.spec.name}-${form.name.replace(/\W+/g, '-').toLowerCase()}-primary.json`,
+          { method: request.method, url: request.url, status: response.statusCode, body: response.body }
+        ).then(() => {
+          expect(response.statusCode, `primary API status; response: ${responseDetails}`).to.be.within(200, 399)
+          if (typeof response.body === 'object' && response.body !== null && 'success' in response.body) {
+            expect(response.body.success, 'API success field').to.equal(true)
+          }
+        })
       })
 
       cy.then(() => {

@@ -2,12 +2,12 @@
   {
     "name": "Contact sales",
     "url": "https://uxarmy.com/contact-sales/",
-    "api": "**/wp-json/uxarmy/v1/submit-contact-sales"
+    "api": "**/wp-json/uxarmy/v1/submit-resource-form"
   },
   {
     "name": "Enterprise sales",
     "url": "https://uxarmy.com/enterprise-sales/",
-    "api": "**/wp-json/uxarmy/v1/submit-contact-sales"
+    "api": "**/wp-json/uxarmy/v1/submit-resource-form"
   },
   {
     "name": "Korean contact",
