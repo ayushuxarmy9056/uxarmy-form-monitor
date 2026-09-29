@@ -7,7 +7,11 @@
     "test": "cypress run",
     "test:open": "cypress open",
     "test:live": "cypress run --env liveSubmit=true",
-    "check:config": "node -e \"const f=require('./cypress/fixtures/forms.json'); if(f.length!==16) throw Error('Expected 16 configured forms'); console.log('Configured forms:', f.length)\""
+    "check:config": "node -e \"const f=require('./cypress/fixtures/forms.json'); if(f.length!==16) throw Error('Expected 16 configured forms'); console.log('Configured forms:', f.length)\"",
+    "report:email": "node scripts/send-email-report.js"
+  },
+  "dependencies": {
+    "nodemailer": "^10.0.12"
   },
   "devDependencies": {
     "cypress": "^15.3.0"

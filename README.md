@@ -44,6 +44,23 @@ The cron runs at minute 17 every second hour in UTC. Every run publishes a summa
 
 GitHub's own email/web notifications can also report failed workflow runs. Enable them under **GitHub → Settings → Notifications → Actions**.
 
+## Email report after every run
+
+The workflow can email a PASS/FAIL report after every manual or scheduled run. Add these under **Settings → Secrets and variables → Actions → Repository secrets**:
+
+- `SMTP_USERNAME`: dedicated sender email address.
+- `SMTP_APP_PASSWORD`: email-provider app password; never use the normal account password.
+- `REPORT_TO`: one recipient or a comma-separated list of recipients.
+
+Optional secrets for non-Gmail providers:
+
+- `SMTP_HOST` (defaults to `smtp.gmail.com`).
+- `SMTP_PORT` (defaults to `465`).
+- `SMTP_SECURE` (defaults to `true`).
+- `REPORT_FROM` (defaults to the SMTP username).
+
+For Gmail, enable two-step verification and generate an App Password for the dedicated sender account. If the required secrets are absent, email is skipped without failing the form tests.
+
 ## What is checked
 
 - Page and primary form load.
