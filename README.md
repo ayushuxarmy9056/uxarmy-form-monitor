@@ -61,6 +61,18 @@ Optional secrets for non-Gmail providers:
 
 For Gmail, enable two-step verification and generate an App Password for the dedicated sender account. If the required secrets are absent, email is skipped without failing the form tests.
 
+### Email through Google Apps Script (no SMTP account)
+
+If SMTP/App Passwords are unavailable, deploy `google-apps-script/Code.gs` as a Google Apps Script Web App:
+
+1. Replace `REPLACE_WITH_A_LONG_RANDOM_SECRET` with a long random token.
+2. Deploy as **Web app**, execute as **Me**, and allow access to **Anyone**.
+3. Authorize Gmail/MailApp access and copy the `/exec` Web App URL.
+4. Add GitHub Secrets `REPORT_WEBHOOK_URL` (the `/exec` URL) and `REPORT_WEBHOOK_TOKEN` (the same random token).
+5. Keep `REPORT_TO` set to the report recipients. SMTP secrets are not needed when both webhook secrets exist.
+
+Never commit the real token to Git. Enter it only in the private Apps Script editor and the GitHub repository secret.
+
 ## What is checked
 
 - Page and primary form load.

@@ -2,14 +2,6 @@ const nodemailer = require('nodemailer')
 const fs = require('fs')
 const path = require('path')
 
-const required = ['SMTP_USERNAME', 'SMTP_APP_PASSWORD', 'REPORT_TO']
-const missing = required.filter((name) => !process.env[name])
-
-if (missing.length) {
-  console.log(`Email report skipped; missing GitHub Secrets: ${missing.join(', ')}`)
-  process.exit(0)
-}
-
 const status = process.env.TEST_OUTCOME || 'unknown'
 const passed = status === 'success'
 const runUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
@@ -42,35 +34,66 @@ const details = [
   `Run logs and failure evidence: ${runUrl}`
 ].join('\n')
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: Number(process.env.SMTP_PORT || 465),
-  secure: String(process.env.SMTP_SECURE || 'true') === 'true',
-  auth: {
-    user: process.env.SMTP_USERNAME,
-    pass: process.env.SMTP_APP_PASSWORD
-  }
-})
+const subject = passed
+  ? 'PASS — UXArmy 16-form monitor'
+  : `FAIL — ${failures.length || 'One or more'} UXArmy form submission(s) failed`
+const text = `UXArmy automated form-monitoring report\n\n${details}${failureText}`
+const html = `
+  <h2 style="color:${passed ? '#14804a' : '#c62828'}">${passed ? 'PASS' : 'FAIL'} — UXArmy form monitor</h2>
+  <table cellpadding="6" cellspacing="0" style="border-collapse:collapse">
+    <tr><td><strong>Result</strong></td><td>${status.toUpperCase()}</td></tr>
+    <tr><td><strong>Forms configured</strong></td><td>16</td></tr>
+    <tr><td><strong>Submission mode</strong></td><td>${process.env.CYPRESS_liveSubmit === 'true' ? 'LIVE' : 'DRY RUN'}</td></tr>
+    <tr><td><strong>Executed</strong></td><td>${timestamp}</td></tr>
+  </table>
+  ${failureHtml}
+  <p><a href="${runUrl}">Open run logs, screenshots, and API evidence</a></p>
+`
 
 async function send() {
+  if (process.env.REPORT_WEBHOOK_URL && process.env.REPORT_WEBHOOK_TOKEN && process.env.REPORT_TO) {
+    const response = await fetch(process.env.REPORT_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        token: process.env.REPORT_WEBHOOK_TOKEN,
+        to: process.env.REPORT_TO,
+        subject,
+        text,
+        html
+      })
+    })
+    const responseText = await response.text()
+    if (!response.ok || !responseText.includes('"success":true')) {
+      throw new Error(`Google email webhook rejected the report: HTTP ${response.status} ${responseText}`)
+    }
+    console.log('Email report sent through Google Apps Script')
+    return
+  }
+
+  const required = ['SMTP_USERNAME', 'SMTP_APP_PASSWORD', 'REPORT_TO']
+  const missing = required.filter((name) => !process.env[name])
+  if (missing.length) {
+    console.log(`Email report skipped; configure Google webhook secrets or add SMTP secrets. Missing: ${missing.join(', ')}`)
+    return
+  }
+
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: Number(process.env.SMTP_PORT || 465),
+    secure: String(process.env.SMTP_SECURE || 'true') === 'true',
+    auth: {
+      user: process.env.SMTP_USERNAME,
+      pass: process.env.SMTP_APP_PASSWORD
+    }
+  })
+
   const info = await transporter.sendMail({
     from: process.env.REPORT_FROM || `UXArmy Form Monitor <${process.env.SMTP_USERNAME}>`,
     to: process.env.REPORT_TO,
-    subject: passed
-      ? 'PASS — UXArmy 16-form monitor'
-      : `FAIL — ${failures.length || 'One or more'} UXArmy form submission(s) failed`,
-    text: `UXArmy automated form-monitoring report\n\n${details}${failureText}`,
-    html: `
-      <h2 style="color:${passed ? '#14804a' : '#c62828'}">${passed ? 'PASS' : 'FAIL'} — UXArmy form monitor</h2>
-      <table cellpadding="6" cellspacing="0" style="border-collapse:collapse">
-        <tr><td><strong>Result</strong></td><td>${status.toUpperCase()}</td></tr>
-        <tr><td><strong>Forms configured</strong></td><td>16</td></tr>
-        <tr><td><strong>Submission mode</strong></td><td>${process.env.CYPRESS_liveSubmit === 'true' ? 'LIVE' : 'DRY RUN'}</td></tr>
-        <tr><td><strong>Executed</strong></td><td>${timestamp}</td></tr>
-      </table>
-      ${failureHtml}
-      <p><a href="${runUrl}">Open run logs, screenshots, and API evidence</a></p>
-    `
+    subject,
+    text,
+    html
   })
 
   console.log(`Email report sent: ${info.messageId}`)

@@ -84,6 +84,8 @@ jobs:
           SMTP_APP_PASSWORD: ${{ secrets.SMTP_APP_PASSWORD }}
           REPORT_FROM: ${{ secrets.REPORT_FROM }}
           REPORT_TO: ${{ secrets.REPORT_TO }}
+          REPORT_WEBHOOK_URL: ${{ secrets.REPORT_WEBHOOK_URL }}
+          REPORT_WEBHOOK_TOKEN: ${{ secrets.REPORT_WEBHOOK_TOKEN }}
         run: npm run report:email
       - name: Fail workflow when Cypress failed
         if: steps.cypress.outcome == 'failure'
