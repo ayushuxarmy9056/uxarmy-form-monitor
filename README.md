@@ -33,14 +33,14 @@ All 16 supplied forms are configured in `cypress/fixtures/forms.json`. Add futur
 
 Forms using the same field names work without code changes. If a form uses different field names or a different API route, update its fixture and the `values` mapping in `cypress/e2e/forms.cy.js`.
 
-## Free two-hour hosting with GitHub Actions
+## Free five-hour hosting with GitHub Actions
 
 1. Create a GitHub repository and push this project.
 2. In **Settings → Secrets and variables → Actions → Secrets**, add `FORM_TEST_EMAIL` with a QA inbox.
-3. Run **Actions → Two-hour form monitor → Run workflow** once to confirm the dry run.
+3. Run **Actions → Five-hour form monitor → Run workflow** once to confirm the dry run.
 4. Only after the site owner approves hourly test leads, add repository variable `LIVE_FORM_SUBMISSION=true`.
 
-The cron runs at minute 17 every second hour in UTC. Every run publishes a summary with its result and logs link. A failed run opens (or comments on) a `form-monitor` GitHub issue and uploads screenshots/API results for seven days. GitHub may delay scheduled jobs during busy periods. Public repositories have free standard-runner usage; private repositories use the account's included Actions minutes.
+The cron runs at 00:17, 05:17, 10:17, 15:17, and 20:17 UTC. Every run publishes a summary with its result and logs link. A failed run opens (or comments on) a `form-monitor` GitHub issue and uploads screenshots/API results for seven days. GitHub may delay scheduled jobs during busy periods. Public repositories have free standard-runner usage; private repositories use the account's included Actions minutes.
 
 GitHub's own email/web notifications can also report failed workflow runs. Enable them under **GitHub → Settings → Notifications → Actions**.
 

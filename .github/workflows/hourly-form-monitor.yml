@@ -1,17 +1,17 @@
-name: Two-hour form monitor
+name: Five-hour form monitor
 
 on:
   workflow_dispatch:
   schedule:
-    # Runs at minute 17 every second hour (UTC).
-    - cron: '17 */2 * * *'
+    # Runs at 00:17, 05:17, 10:17, 15:17, and 20:17 UTC.
+    - cron: '17 */5 * * *'
 
 permissions:
   contents: read
   issues: write
 
 concurrency:
-  group: two-hour-form-monitor
+  group: five-hour-form-monitor
   cancel-in-progress: false
 
 jobs:
@@ -60,7 +60,7 @@ jobs:
             const details = failures.length
               ? failures.map((failure) => `- **${failure.test}**\n  ${failure.error.replace(/\n/g, '\n  ')}`).join('\n')
               : '- Cypress failed; open the run logs for details.'
-            const body = `The two-hour form monitor failed.\n\n### Failed forms and errors\n${details}\n\n[Open run logs, screenshots, and API evidence](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`
+            const body = `The five-hour form monitor failed.\n\n### Failed forms and errors\n${details}\n\n[Open run logs, screenshots, and API evidence](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`
             const { data: issues } = await github.rest.issues.listForRepo({
               ...context.repo,
               state: 'open',
