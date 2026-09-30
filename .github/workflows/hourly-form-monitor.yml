@@ -37,15 +37,7 @@ jobs:
         if: always()
         env:
           TEST_OUTCOME: ${{ steps.cypress.outcome }}
-        run: |
-          {
-            echo "## UXArmy form monitor"
-            echo
-            echo "- Result: **${TEST_OUTCOME}**"
-            echo "- Forms configured: **16**"
-            echo "- Submission mode: **${CYPRESS_liveSubmit}**"
-            echo "- Run: [Open logs and artifacts](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})"
-          } >> "$GITHUB_STEP_SUMMARY"
+        run: npm run report:summary
       - name: Upload screenshots and API results
         if: always()
         uses: actions/upload-artifact@v6
@@ -62,7 +54,13 @@ jobs:
         with:
           script: |
             const title = 'Form monitor failure'
-            const body = `The two-hour form monitor failed.\n\n[Open run logs and screenshots](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`
+            const fs = require('fs')
+            const failurePath = 'cypress/results/failures.json'
+            const failures = fs.existsSync(failurePath) ? JSON.parse(fs.readFileSync(failurePath, 'utf8')) : []
+            const details = failures.length
+              ? failures.map((failure) => `- **${failure.test}**\n  ${failure.error.replace(/\n/g, '\n  ')}`).join('\n')
+              : '- Cypress failed; open the run logs for details.'
+            const body = `The two-hour form monitor failed.\n\n### Failed forms and errors\n${details}\n\n[Open run logs, screenshots, and API evidence](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`
             const { data: issues } = await github.rest.issues.listForRepo({
               ...context.repo,
               state: 'open',
