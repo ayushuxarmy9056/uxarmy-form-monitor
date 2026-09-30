@@ -28,10 +28,10 @@ const escapeHtml = (value) => String(value || '')
   .replace(/>/g, '&gt;')
   .replace(/"/g, '&quot;')
 const failureText = failures.length
-  ? `\n\nFailed forms and errors:\n${failures.map((failure, index) => `${index + 1}. ${failure.test}\n   ${failure.error}`).join('\n')}`
+  ? `\n\nFORM SUBMISSION FAILURES (${failures.length}):\n${failures.map((failure, index) => `${index + 1}. FORM SUBMISSION FAILED: ${failure.test}\n   Error: ${failure.error}`).join('\n')}`
   : '\n\nFailed forms and errors: none'
 const failureHtml = failures.length
-  ? `<h3 style="color:#c62828">Failed forms and errors</h3><ol>${failures.map((failure) => `<li><strong>${escapeHtml(failure.test)}</strong><br><pre style="white-space:pre-wrap;background:#f6f8fa;padding:8px">${escapeHtml(failure.error)}</pre></li>`).join('')}</ol>`
+  ? `<div style="margin-top:20px;border:2px solid #c62828;background:#fff5f5;padding:16px"><h3 style="color:#c62828;margin-top:0">⚠ FORM SUBMISSION FAILURES (${failures.length})</h3><p>The following forms were not submitted successfully:</p><ol>${failures.map((failure) => `<li style="margin-bottom:16px"><strong style="color:#c62828">FORM SUBMISSION FAILED: ${escapeHtml(failure.test)}</strong><br><strong>Error:</strong><pre style="white-space:pre-wrap;background:#ffffff;border-left:4px solid #c62828;padding:10px">${escapeHtml(failure.error)}</pre></li>`).join('')}</ol></div>`
   : '<h3 style="color:#14804a">✅ No Cypress failures were recorded</h3>'
 
 const details = [
@@ -56,7 +56,9 @@ async function send() {
   const info = await transporter.sendMail({
     from: process.env.REPORT_FROM || `UXArmy Form Monitor <${process.env.SMTP_USERNAME}>`,
     to: process.env.REPORT_TO,
-    subject: `${passed ? 'PASS' : 'FAIL'} — UXArmy 16-form monitor`,
+    subject: passed
+      ? 'PASS — UXArmy 16-form monitor'
+      : `FAIL — ${failures.length || 'One or more'} UXArmy form submission(s) failed`,
     text: `UXArmy automated form-monitoring report\n\n${details}${failureText}`,
     html: `
       <h2 style="color:${passed ? '#14804a' : '#c62828'}">${passed ? 'PASS' : 'FAIL'} — UXArmy form monitor</h2>
