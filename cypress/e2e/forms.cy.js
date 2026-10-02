@@ -37,9 +37,21 @@ function fillMainForm() {
           const selectable = [...$options].find((option) => !option.disabled && option.value)
           if (selectable) cy.wrap($field).select(selectable.value)
         })
-      } else if (type === 'checkbox') {
-        cy.wrap($field).check({ force: true })
       }
+    })
+
+    const checkboxNames = [...new Set(
+      [...$form.find('input[type="checkbox"]')]
+        .map((checkbox) => checkbox.name)
+        .filter(Boolean)
+    )]
+
+    checkboxNames.forEach((name) => {
+      const checkboxes = $form.find('input[type="checkbox"]').filter((_, checkbox) => checkbox.name === name)
+
+      // Select one valid answer from checkbox groups, matching normal user behaviour.
+      // Standalone checkboxes (for example required consent) are still checked.
+      cy.wrap(checkboxes.first()).check({ force: true })
     })
 
     const radioNames = [...new Set([...$form.find('input[type="radio"]')].map((radio) => radio.name))]
