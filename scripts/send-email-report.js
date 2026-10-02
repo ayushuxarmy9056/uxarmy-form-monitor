@@ -74,8 +74,10 @@ async function send() {
   const required = ['SMTP_USERNAME', 'SMTP_APP_PASSWORD', 'REPORT_TO']
   const missing = required.filter((name) => !process.env[name])
   if (missing.length) {
-    console.log(`Email report skipped; configure Google webhook secrets or add SMTP secrets. Missing: ${missing.join(', ')}`)
-    return
+    throw new Error(
+      `Email report was not sent. Configure REPORT_WEBHOOK_URL and REPORT_WEBHOOK_TOKEN, ` +
+      `or add SMTP credentials. Missing SMTP settings: ${missing.join(', ')}`
+    )
   }
 
   const transporter = nodemailer.createTransport({
