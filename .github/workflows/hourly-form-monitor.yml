@@ -48,23 +48,38 @@ jobs:
             cypress/results
           if-no-files-found: ignore
           retention-days: 7
-      - name: Open a GitHub issue when monitoring fails
-        if: steps.cypress.outcome == 'failure'
+      - name: Email report to the team
+        id: email
+        if: always()
+        continue-on-error: true
+        env:
+          TEST_OUTCOME: ${{ steps.cypress.outcome }}
+          REPORT_TO: ${{ secrets.REPORT_TO }}
+          REPORT_WEBHOOK_URL: ${{ secrets.REPORT_WEBHOOK_URL }}
+          REPORT_WEBHOOK_TOKEN: ${{ secrets.REPORT_WEBHOOK_TOKEN }}
+        run: npm run report:email
+      - name: Post GitHub report notification
+        if: always()
         uses: actions/github-script@v8
+        env:
+          CYPRESS_OUTCOME: ${{ steps.cypress.outcome }}
+          EMAIL_OUTCOME: ${{ steps.email.outcome }}
         with:
           script: |
-            const title = 'Form monitor failure'
+            const title = 'Five-hour form monitor reports'
             const fs = require('fs')
             const failurePath = 'cypress/results/failures.json'
             const failures = fs.existsSync(failurePath) ? JSON.parse(fs.readFileSync(failurePath, 'utf8')) : []
             const details = failures.length
-              ? failures.map((failure) => `- **${failure.test}**\n  ${failure.error.replace(/\n/g, '\n  ')}`).join('\n')
-              : '- Cypress failed; open the run logs for details.'
-            const body = `@${context.repo.owner} — the five-hour form monitor failed.\n\n### Failed forms and errors\n${details}\n\n[Open run logs, screenshots, and API evidence](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`
+              ? `\n\n### Failed forms and errors\n${failures.map((failure) => `- **${failure.test}**\n  ${failure.error.replace(/\n/g, '\n  ')}`).join('\n')}`
+              : ''
+            const formStatus = process.env.CYPRESS_OUTCOME === 'success' ? '✅ PASS' : '❌ FAIL'
+            const emailStatus = process.env.EMAIL_OUTCOME === 'success' ? '✅ SENT' : '❌ NOT SENT'
+            const body = `@${context.repo.owner} — five-hour form monitor report.\n\n- **Forms:** ${formStatus}\n- **Email report:** ${emailStatus}${details}\n\n[Open run logs, screenshots, and API evidence](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`
             const { data: issues } = await github.rest.issues.listForRepo({
               ...context.repo,
               state: 'open',
-              per_page: 20
+              per_page: 100
             })
             const existing = issues.find((issue) => issue.title === title)
             if (existing) {
@@ -73,17 +88,6 @@ jobs:
             } else {
               await github.rest.issues.create({ ...context.repo, title, body, assignees: [context.repo.owner] })
             }
-      - name: Email report to the team
-        if: always()
-        env:
-          TEST_OUTCOME: ${{ steps.cypress.outcome }}
-          SMTP_HOST: ${{ secrets.SMTP_HOST }}
-          SMTP_PORT: ${{ secrets.SMTP_PORT }}
-          SMTP_SECURE: ${{ secrets.SMTP_SECURE }}
-          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
-          SMTP_APP_PASSWORD: ${{ secrets.SMTP_APP_PASSWORD }}
-          REPORT_FROM: ${{ secrets.REPORT_FROM }}
-          REPORT_TO: ${{ secrets.REPORT_TO }}
-          REPORT_WEBHOOK_URL: ${{ secrets.REPORT_WEBHOOK_URL }}
-          REPORT_WEBHOOK_TOKEN: ${{ secrets.REPORT_WEBHOOK_TOKEN }}
-        run: npm run report:email
+      - name: Fail workflow when email delivery failed
+        if: steps.email.outcome == 'failure'
+        run: exit 1
