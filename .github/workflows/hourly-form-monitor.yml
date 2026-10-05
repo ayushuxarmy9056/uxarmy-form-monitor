@@ -1,17 +1,17 @@
-name: Five-hour form monitor
+name: Daily form monitor
 
 on:
   workflow_dispatch:
   schedule:
-    # Runs at 00:17, 05:17, 10:17, 15:17, and 20:17 UTC.
-    - cron: '17 */5 * * *'
+    # Runs once a day at 00:17 UTC (5:47 AM India time).
+    - cron: '17 0 * * *'
 
 permissions:
   contents: read
   issues: write
 
 concurrency:
-  group: five-hour-form-monitor
+  group: daily-form-monitor
   cancel-in-progress: false
 
 jobs:
@@ -66,7 +66,7 @@ jobs:
           EMAIL_OUTCOME: ${{ steps.email.outcome }}
         with:
           script: |
-            const title = 'Five-hour form monitor reports'
+            const title = 'Daily form monitor reports'
             const fs = require('fs')
             const failurePath = 'cypress/results/failures.json'
             const failures = fs.existsSync(failurePath) ? JSON.parse(fs.readFileSync(failurePath, 'utf8')) : []
@@ -75,7 +75,7 @@ jobs:
               : ''
             const formStatus = process.env.CYPRESS_OUTCOME === 'success' ? '✅ PASS' : '❌ FAIL'
             const emailStatus = process.env.EMAIL_OUTCOME === 'success' ? '✅ SENT' : '❌ NOT SENT'
-            const body = `@${context.repo.owner} — five-hour form monitor report.\n\n- **Forms:** ${formStatus}\n- **Email report:** ${emailStatus}${details}\n\n[Open run logs, screenshots, and API evidence](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`
+            const body = `@${context.repo.owner} — daily form monitor report.\n\n- **Forms:** ${formStatus}\n- **Email report:** ${emailStatus}${details}\n\n[Open run logs, screenshots, and API evidence](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`
             const { data: issues } = await github.rest.issues.listForRepo({
               ...context.repo,
               state: 'open',
